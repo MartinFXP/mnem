@@ -2,7 +2,11 @@
 % Please edit documentation in R/mnems.r
 \name{getIC}
 \alias{getIC}
-\title{plot mnem result}
+\title{Calculate negative penalized log likelihood.
+This function calculates
+a negative penalized log likelihood given a object of class mnem. This
+penalized likelihood is based on the normal likelihood and penalizes
+complexity of the mixture components (i.e. the networks).}
 \usage{
 getIC(x, man = FALSE, degree = 4, logtype = 2, pen = 2, useF = FALSE,
   Fnorm = FALSE)
@@ -10,33 +14,45 @@ getIC(x, man = FALSE, degree = 4, logtype = 2, pen = 2, useF = FALSE,
 \arguments{
 \item{x}{mnem object}
 
-\item{man}{logical. manual data penalty}
+\item{man}{logical. manual data penalty, e.g. man=TRUE and pen=2 for an
+approximation of the Akaike Information Criterion}
 
-\item{degree}{different degree of complexity}
+\item{degree}{different degree of penalty for complexity: positive entries
+of transitively reduced phis or phi^r (degree=0), phi^r and mixture
+components minus one k-1 (1), phi^r, k-1 and positive entries of thetas (2),
+positive entries of transitively closed phis or phi^t, k-1 (3), phi^t, theta,
+k-1 (4, default), all entries of phis, thetas and k-1 (5)}
 
-\item{logtype}{logarithm type of the data}
+\item{logtype}{logarithm type of the data (e.g. 2 for log2 data or exp(1)
+for natural)}
 
-\item{pen}{penalty weight ofr the data}
+\item{pen}{penalty weight for the data (e.g. pen=2 for approximate Akaike
+Information Criterion)}
 
-\item{useF}{use F (see publication) as complexity}
+\item{useF}{use F (see publication) as complexity instead of phi and theta}
 
-\item{Fnorm}{normalize complexity of F}
+\item{Fnorm}{normalize complexity of F, i.e. if two components have the
+same entry in F, it is only counted once}
 }
 \value{
-penlized likelihood
+penalized likelihood
 }
 \description{
-plot mnem result
+Calculate negative penalized log likelihood.
+This function calculates
+a negative penalized log likelihood given a object of class mnem. This
+penalized likelihood is based on the normal likelihood and penalizes
+complexity of the mixture components (i.e. the networks).
 }
 \examples{
-sim <- simData(Sgenes = 5, Egenes = 2, Nems = 2, mw = c(0.4,0.6))
+sim <- simData(Sgenes = 3, Egenes = 2, Nems = 2, mw = c(0.4,0.6))
 data <- (sim$data - 0.5)/0.5
 data <- data + rnorm(length(data), 0, 1)
 pen <- numeric(3)
 result <- list()
-for (k in 1:3) {
-result[[k]] <- mnem(data, k = k, starts = 10)
-pen[k] <- getIC(result[[k]])
+for (k in seq_len(3)) {
+    result[[k]] <- mnem(data, k = k, starts = 2)
+    pen[k] <- getIC(result[[k]])
 }
 print(pen)
 }
